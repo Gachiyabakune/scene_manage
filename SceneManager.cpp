@@ -1,9 +1,13 @@
 #include "SceneManager.h"
 #include <cassert>
 
+#include "SceneTitle.h"
+#include "SceneMain.h"
+
 SceneManager::SceneManager()
 {
 	m_kind = kSceneKindTitle;
+	m_pScene = nullptr;
 }
 SceneManager::~SceneManager()
 {
@@ -16,54 +20,38 @@ void SceneManager::init(SceneKind kind)
 	switch (m_kind)
 	{
 	case SceneManager::kSceneKindTitle:
-		m_title.init();
+		m_pScene = new SceneTitle;
 		break;
 	case SceneManager::kSceneKindMain:
-		m_main.init();
+		m_pScene = new SceneMain;
 		break;
 	case SceneManager::kSceneKindNum:
 	default:
 		assert(false);
 		break;
 	}
+	m_pScene->init();
 }
 
 void SceneManager::end()
 {
-	switch (m_kind)
-	{
-	case SceneManager::kSceneKindTitle:
-		m_title.end();
-		break;
-	case SceneManager::kSceneKindMain:
-		m_main.end();
-		break;
-	case SceneManager::kSceneKindNum:
-	default:
-		assert(false);
-		break;
-	}
+	assert(m_pScene);
+	if (!m_pScene) return;
+
+	m_pScene->end();
+	delete m_pScene;
 }
 
 void SceneManager::update()
 {
+	assert(m_pScene);
+	if (!m_pScene) return;
+
+	m_pScene->update();
+
 	bool isEnd = false;
-	switch (m_kind)
-	{
-	case SceneManager::kSceneKindTitle:
-		m_title.update();
-		isEnd = m_title.isEnd();
-		break;
-	case SceneManager::kSceneKindMain:
-		m_main.update();
-		isEnd = m_main.isEnd();
-		break;
-	case SceneManager::kSceneKindNum:
-	default:
-		assert(false);
-		break;
-	}
-	if (isEnd)
+
+	if (m_pScene->isEnd())
 	{
 		switch (m_kind)
 		{
